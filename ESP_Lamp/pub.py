@@ -3,6 +3,16 @@ import time
 counter_start = 0
 counter_end = 0
 
+import paho.mqtt.client as paho
+
+
+broker = 'broker.emqx.io'
+client = paho.Client('client-isu-242')
+print('Connecting to broker', broker)
+client.connect(broker)
+client.loop_start()
+topic = ''
+
 while True:
     current_second = int(time.time() % 60)
 
@@ -31,3 +41,7 @@ while True:
 
     else:
         time.sleep(1) 
+
+
+client.disconnect()
+client.loop_stop()
