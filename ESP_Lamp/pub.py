@@ -16,19 +16,21 @@ print("Publishing")
 topic = questionary.text("Print a topic: ").ask()
 print(topic)
 
+counter_start= 0
+counter_end = 0 
 while True:
     current_second = int(time.time() % 60)
 
     if current_second == 20 + counter_start:
         print(current_second, "sec")
-        print("start", counter_start, "end", counter_end)
+        #print("start", counter_start, "end", counter_end)
         print("Led is up!")
 	client.publish(topic, "1")
         time.sleep((40 - counter_end)-(20 + counter_start))
 
     elif current_second == 40 - counter_end:
         print(current_second, "sec")
-        print("start", counter_start, "end", counter_end)
+        #print("start", counter_start, "end", counter_end)
         print("Led is down!")
 	client.publish(topic, "0")
 
