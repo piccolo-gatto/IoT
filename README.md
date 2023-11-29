@@ -12,6 +12,13 @@ Demonstration: </br>
 [https://youtu.be/74V7MZaQNCY](https://youtu.be/74V7MZaQNCY)
 
 
+## ShiftRegisters
+Demonstration of point 1:</br>
+[https://youtu.be/ax-Ln9o8Xpg](https://youtu.be/ax-Ln9o8Xpg) </br>
+Demonstration of points 2, 3: </br>
+[https://youtu.be/m8S5M39AXGc](https://youtu.be/m8S5M39AXGc)
+
+
 ## Button Interrupt
 Demonstration: </br>
 [https://youtube.com/shorts/nWOJo2u06kU](https://youtube.com/shorts/nWOJo2u06kU)
