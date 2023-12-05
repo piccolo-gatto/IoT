@@ -12,6 +12,11 @@ Demonstration: </br>
 [https://youtu.be/74V7MZaQNCY](https://youtu.be/74V7MZaQNCY)
 
 
+## CascadingManual
+Demonstration: </br>
+[https://youtu.be/OJvzFpOHifg](https://youtu.be/OJvzFpOHifg)
+
+
 ## ShiftRegisters
 Demonstration of point 1:</br>
 [https://youtu.be/ax-Ln9o8Xpg](https://youtu.be/ax-Ln9o8Xpg) </br>
