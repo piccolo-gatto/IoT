@@ -32,3 +32,8 @@ Demonstration: </br>
 ## 	Range Calibration
 Demonstration: </br>
 [https://youtu.be/i-eyP6-rcYg?si=hQXYoyd8EhHI3wWn](https://youtu.be/i-eyP6-rcYg?si=hQXYoyd8EhHI3wWn)
+
+
+## I2C Calibration
+Demonstration: \
+[https://youtu.be/GKyXn4Y59qY](https://youtu.be/GKyXn4Y59qY)
