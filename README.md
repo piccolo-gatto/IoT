@@ -38,3 +38,10 @@ Demonstration: </br>
 ## I2C Calibration
 Demonstration: \
 [https://youtu.be/GKyXn4Y59qY](https://youtu.be/GKyXn4Y59qY)
+
+
+## Morse
+Demonstration: </br>
+[https://youtu.be/lY88FP8_t9g](https://youtu.be/lY88FP8_t9g)
+![image](https://github.com/piccolo-gatto/IoT/assets/108530800/d21eb80f-92d2-4497-8ac3-729c42f58de7)
+
