@@ -51,12 +51,17 @@ void loop() {
     Serial.print(i + 1);
     Serial.print(" ");
     if (states[i] == 1) {
-      Serial.println("ON ");
+      Serial.print("ON");
+      Serial.print("\t");
     }
     else {
-      Serial.println("OFF ");
+      Serial.print("OFF");
+      Serial.print("\t");
     }
     currentStates[i] = states[i];
+    if ((i + 1) % 2 == 0){
+      Serial.println(" ");
+    }
   }
   Serial.println(" ");
   }
