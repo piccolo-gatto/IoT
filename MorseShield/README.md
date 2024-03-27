@@ -11,4 +11,4 @@ Demonstration of soldering: </br>
 ![image](https://github.com/piccolo-gatto/IoT/MorseShield/MorseShieldSoldering/d5.jpg)
 
 
-![k1PE408Gjvo](https://github.com/piccolo-gatto/IoT/assets/108530800/b619f41a-7b03-4cbf-be9b-6e7afcb96f6c)
+<img src=https://github.com/piccolo-gatto/IoT/assets/108530800/b619f41a-7b03-4cbf-be9b-6e7afcb96f6c width="200" />
