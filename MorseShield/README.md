@@ -4,11 +4,10 @@ Demonstration: </br>
 </br>
 
 Demonstration of soldering: </br>
-![image](https://github.com/piccolo-gatto/IoT/MorseShield/MorseShieldSoldering/d1.jpg)
-![image](https://github.com/piccolo-gatto/IoT/MorseShield/MorseShieldSoldering/d2.jpg)
-![image](https://github.com/piccolo-gatto/IoT/MorseShield/MorseShieldSoldering/d3.jpg)
-![image](https://github.com/piccolo-gatto/IoT/MorseShield/MorseShieldSoldering/d4.jpg)
-![image](https://github.com/piccolo-gatto/IoT/MorseShield/MorseShieldSoldering/d5.jpg)
+<img src="https://github.com/piccolo-gatto/IoT/blob/main/MorseShield/MorseShieldSoldering/d1.jpg" width="400" />
+<img src="https://github.com/piccolo-gatto/IoT/blob/main/MorseShield/MorseShieldSoldering/d2.jpg" width="400" />
+<img src="https://github.com/piccolo-gatto/IoT/blob/main/MorseShield/MorseShieldSoldering/d3.jpg" width="400" />
+<img src="https://github.com/piccolo-gatto/IoT/blob/main/MorseShield/MorseShieldSoldering/d4.jpg" width="400" />
+<img src="https://github.com/piccolo-gatto/IoT/blob/main/MorseShield/MorseShieldSoldering/d5.jpg" width="400" />
 
-
-<img src=https://github.com/piccolo-gatto/IoT/assets/108530800/b619f41a-7b03-4cbf-be9b-6e7afcb96f6c width="200" />
+<img src="https://github.com/piccolo-gatto/IoT/assets/108530800/b619f41a-7b03-4cbf-be9b-6e7afcb96f6c" width="400" />
