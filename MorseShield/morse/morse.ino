@@ -5,7 +5,7 @@
 #define PIN_POT A0
 
 #define PIN_TRANSMITTER 9
-#define PIN_RECEIVER 2
+#define PIN_RECEIVER 10
 
 #define TRANSMITTER 1
 #define RECEIVER 0
