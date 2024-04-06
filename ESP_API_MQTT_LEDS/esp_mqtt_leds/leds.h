@@ -1,7 +1,7 @@
 #define FASTLED_INTERNAL
 #include <FastLED.h> // https://github.com/FastLED/FastLED
 
-#define DATA_PIN 4
+#define DATA_PIN D4
 #define CLOCK_PIN 3
 #define NUM_LEDS 13
 
