@@ -11,15 +11,6 @@
 
 // добавить библиотеку NewPing или другую для сенсоров
 
-long int prev_time;
-int counter = 0;
-
-void setup(){
-  // Serial.begin(counter);
-  setupMotorShield();
-  counter = millis()+1250;
-}
-
 void setupMotorShield(){
     for (int i=4; i<=7; i++){
     pinMode(i, OUTPUT);
@@ -49,11 +40,48 @@ void rotate_right(int velocity){
   move(true, false, velocity, velocity);
 }
 
+void turn_left(int velocity){
+  move(true, true, velocity, 0); // возможно velocity/2
+}
+
+void turn_right(int velocity){
+  move(true, true, 0, velocity);
+}
+
 void stop(){
-  move(false, true, 0, 0);
+  move(true, true, 0, 0);
+}
+
+void turn_90_degr(){ // направо
+  unsigned long currentMillis = millis();
+  unsigned long previousMillis = 0;
+  const long period = 2000; // подобрать время
+  if (currentMillis - previousMillis < period) { // проверяем прошли ли 1000ms 
+    previousMillis = currentMillis;
+    turn_right(128) // подобрать скорость
+  }
+}
+
+void turn_270_degr(){ // направо
+  
+  turn_right() // подобрать время и скорость
 }
 
 
+int get_dist(trig, echo){
+  // добавляем библиотечку
+}
+
+// добавить сторожевой таймер
+
+// добавить алгоритм объезда препятствия
+
+
+void setup(){
+  // Serial.begin(counter);
+  setupMotorShield();
+  
+}
 
 void loop(){
   unsigned long current_time = millis();
@@ -94,7 +122,7 @@ void loop(){
   // delay(2000);
 }
 
-
+// код для проверок
 // dir 4 7
 // speed 5 6
 // правильная ли распиновка, если нет то меняем на right
@@ -103,7 +131,6 @@ void loop(){
 // #define SPEED_RIGHT 5
 // #define DIR_LEFT 7
 // #define SPEED_LEFT 6
-
 // void setup(){
 //   for (int i=4; i<=7; i++){
 //     pinMode(i, OUTPUT);
@@ -111,7 +138,5 @@ void loop(){
 //   digitalWrite(DIR_RIGHT, HIGH);
 //   digitalWrite(SPEED_RIGHT, 255);
 // }
-
 // void loop(){
-
 // }
