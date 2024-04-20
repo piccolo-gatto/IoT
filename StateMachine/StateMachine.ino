@@ -1,3 +1,5 @@
+// #include <iarduino_HC_SR04.h>
+
 #define DIR_RIGHT 4
 #define SPEED_RIGHT 5
 #define DIR_LEFT 7
@@ -9,12 +11,25 @@
 #define forward_sensor_trig 9
 #define forward_sensor_echo 3
 
-// добавить библиотеку NewPing или другую для сенсоров
+#define FD 20
+#define CD 15
+#define JD 15
+
+// iarduino_HC_SR04 left_sensor(10, 11);
+// iarduino_HC_SR04 forward_sensor(9, 3);
+
 
 void setupMotorShield(){
     for (int i=4; i<=7; i++){
     pinMode(i, OUTPUT);
   }
+}
+
+void setupSensors(){
+  pinMode(left_sensor_trig, OUTPUT);
+  pinMode(left_sensor_echo, INPUT);
+  pinMode(forward_sensor_trig, OUTPUT);
+  pinMode(forward_sensor_echo, INPUT);
 }
 
 void move(bool rforward, bool lforward, int rvelocity, int lvelocity){
@@ -52,60 +67,133 @@ void stop(){
   move(true, true, 0, 0);
 }
 
-void turn_90_degr(){ // направо
+void turn_90_degr(int direction){ // направо
   unsigned long currentMillis = millis();
   unsigned long previousMillis = 0;
   const long period = 2000; // подобрать время
-  if (currentMillis - previousMillis < period) { // проверяем прошли ли 1000ms 
+  if (currentMillis - previousMillis < period and direction==0) {
     previousMillis = currentMillis;
-    turn_right(128) // подобрать скорость
+    turn_right(128); // подобрать скорость
+  }
+  else if (currentMillis - previousMillis < period and direction==1) {
+    previousMillis = currentMillis;
+    turn_left(128); // подобрать скорость
   }
 }
 
 void turn_270_degr(){ // направо
-  
-  turn_right() // подобрать время и скорость
+  turn_right(128); // подобрать время и скорость
 }
 
 
-int get_dist(trig, echo){
-  // добавляем библиотечку
+int get_dist(int trig, int echo){
+  long duration;
+  int distance;
+  digitalWrite(trig, LOW);
+    delayMicroseconds(3); 
+ 
+    digitalWrite(trig, HIGH); 
+    delayMicroseconds(10); 
+    digitalWrite(trig,LOW);
+    duration = pulseIn(echo, HIGH);
+    distance = duration * 0.0344 / 2; 
+    Serial.print("Distance: ");
+    Serial.print(distance);
+    Serial.println(" cm");
 }
 
 // добавить сторожевой таймер
 
 // добавить алгоритм объезда препятствия
 
+enum RobotState {
+  FORWARD,
+  TURN_RIGHT,
+  TURN_LEFT,
+  ROTATE_RIGHT,
+  ROTATE_LEFT,
+  FOLLOW_WALL,
+  STOP
+};
+
+RobotState currState = FORWARD;
+
 
 void setup(){
   // Serial.begin(counter);
   setupMotorShield();
-  
+  setupSensors();
 }
 
 void loop(){
-  unsigned long current_time = millis();
+  unsigned long currentMillis = millis();
+  unsigned long previousMillis = 0;
+  const long period = 2000; 
 
-  // езду по кругу
-  move_forward(255);
-  delay(2000);
-      // if (current_time - prev_time >= 2000) {
-      //   prev_time = current_time;
-      // }
-      rotate_left(255);
-      delay(2000);
-      // if (current_time - prev_time >= 2000) {
-      //   prev_time = current_time;
-      // }
-      move_back(255);
-      delay(2000);
-      // if (current_time - prev_time >= 2000) {
-      //   prev_time = current_time;
-      // }
-      rotate_right(255);
-      delay(2000);
+  // ручной вариант
+  // int ldist = get_dist(left_sensor_trig, left_sensor_echo);
+  // int fdist = get_dist(forward_sensor_trig, forward_sensor_trig);
+
+  // библиотечный вариант
+  // left_sensor.averaging = 15; // усреднение значений 
+  // forward_sensor.averaging = 15;
+  // int ld2 = left_sensor.distance();
+  // int fd2 = forward_sensor.distance();
+  
+  switch(currentState) {
+    case MOVE_FORWARD:
+
+      int ldist = get_dist(left_sensor_trig, left_sensor_echo);
+      int fdist = get_dist(forward_sensor_trig, forward_sensor_trig);
+
+      if(fdist > FD) {
+        move_forward(128);
+        currState = FORWARD;
+      }
+      else if (ldist <= CD) {
+        currState = TURN_RIGHT;
+      }
+      else {
+        currState = FOLLOW_WALL;
+      }
+      break;
+
+    case FOLLOW_WALL:
+      int ldist = get_dist(left_sensor_trig, left_sensor_echo);
+      
+      if(ld > CD) {
+        currState = TURN_LEFT;
+      }
+      else {
+        move_forward(128);
+        currState = FOLLOW_WALL;
+      }
+      break;
+    case STOP:
       stop();
-      delay(2000);
+      break;
+
+
+
+  // move_forward(255);
+  // delay(2000);
+  //     // if (current_time - prev_time >= 2000) {
+  //     //   prev_time = current_time;
+  //     // }
+  //     rotate_left(255);
+  //     delay(2000);
+  //     // if (current_time - prev_time >= 2000) {
+  //     //   prev_time = current_time;
+  //     // }
+  //     move_back(255);
+  //     delay(2000);
+  //     // if (current_time - prev_time >= 2000) {
+  //     //   prev_time = current_time;
+  //     // }
+  //     rotate_right(255);
+  //     delay(2000);
+  //     stop();
+  //     delay(2000);
 
 
   // Serial.println(counter-millis());
