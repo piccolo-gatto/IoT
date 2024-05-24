@@ -179,13 +179,106 @@ void setup ()
 
 void loop()
 {
-//twist();
-//drop();
-//diagonal();
-//test_all();
-//test_ones_top();
-test_twos_in_one();
+  off_all();
+
+  // for (int i=0; i<=1; i++){ // layer
+  //   for (int j=0; j<=3; j++){ // col
+  //     light_one(i, j);
+  //     delay(500);
+  //     off_all();
+  //   }
+  // }
+
+  // for (int i=0; i<=3; i++){ //column
+  //     light_two_in_column(i);
+  //     delay(500);
+  //     off_all();
+  // }
+
+  for (int i=0; i<=3; i++){ //column for zero
+    for (int j=0; j<=3; j++){ //column for first
+      if (i != j){
+        light_two_in_layer(i, j);
+        delay(100);
+      }
+    }
+  }
+
 }
+
+
+void off_all(){
+  digitalWrite(groundpins[0], LOW);
+  digitalWrite(groundpins[1], LOW);
+  digitalWrite(ledpins[0], LOW);
+  digitalWrite(ledpins[1], LOW);
+  digitalWrite(ledpins[2], LOW);
+  digitalWrite(ledpins[3], LOW);
+}
+
+
+// void light_zero_layer(){
+//   digitalWrite(groundpins[0], HIGH);
+//   for (int i = 0; i <= 3; i++){
+//     digitalWrite(ledpins[i], HIGH);
+//     delay(200);
+//     digitalWrite(ledpins[i], LOW);
+//     delay(200);
+//   }
+//   digitalWrite(groundpins[0], LOW);
+//   delay(200);
+// }
+
+// void light_first_layer(){
+//   digitalWrite(groundpins[1], HIGH);
+//   for (int i = 0; i <= 3; i++){
+//     digitalWrite(ledpins[i], HIGH);
+//     delay(200);
+//     digitalWrite(ledpins[i], LOW);
+//     delay(200);
+//   }
+//   digitalWrite(groundpins[1], LOW);
+//   delay(200);
+// }
+
+// void light_columns(){
+//   for (int i = 0; i <= 3; i++){
+//     digitalWrite(ledpins[i], HIGH);
+//     delay(200);
+//     digitalWrite(ledpins[i], LOW);
+//     delay(200);
+//   }
+// }
+
+void light_one(int layer, int col){
+  digitalWrite(groundpins[layer], HIGH);
+
+  digitalWrite(ledpins[col], HIGH);
+  
+  //digitalWrite(ledpins[col], LOW);
+  //delay(200);
+  
+  //digitalWrite(groundpins[layer], LOW);
+  //delay(200);
+}
+
+void light_two_in_column(int col){
+  digitalWrite(ledpins[col], HIGH);
+  delay(300);
+}
+
+void light_two_in_layer(int fcol, int scol){
+ for (int i=0; i<=100; i++){
+  light_one(0, fcol);
+    delay(5);
+    off_all();
+
+    light_one(1, scol);
+    delay(5);
+    off_all();
+ }
+}
+
 
 void test_twos_in_one(){
   // // 01 11
@@ -243,6 +336,64 @@ void test_ones_bottom(){
   digitalWrite(ledpins[0], HIGH);
   // итд
 }
+
+void test1in0and2in1(){
+  digitalWrite(groundpins[0], LOW);
+  digitalWrite(groundpins[1], LOW);
+  digitalWrite(ledpins[0], LOW);
+  digitalWrite(ledpins[1], LOW);
+  digitalWrite(ledpins[2], LOW);
+  digitalWrite(ledpins[3], LOW);
+
+  // 01 11 12
+  digitalWrite(ledpins[0], HIGH);
+  delay(5);
+  digitalWrite(groundpins[0], HIGH);
+  digitalWrite(ledpins[1], HIGH);
+  delay(5);
+}
+
+void test2in0and2in1(){
+  digitalWrite(groundpins[0], LOW);
+  digitalWrite(groundpins[1], LOW);
+  digitalWrite(ledpins[0], LOW);
+  digitalWrite(ledpins[1], LOW);
+  digitalWrite(ledpins[2], LOW);
+  digitalWrite(ledpins[3], LOW);
+
+  // 01 02 11 12
+  // digitalWrite(ledpins[0], HIGH);
+  // digitalWrite(ledpins[1], HIGH);
+
+  // 02 03 12 13
+  // digitalWrite(ledpins[1], HIGH);
+  // digitalWrite(ledpins[2], HIGH);
+
+    // 03 04 13 14
+  // digitalWrite(ledpins[2], HIGH);
+  // digitalWrite(ledpins[3], HIGH);
+
+  // 01 04 11 14
+  // digitalWrite(ledpins[0], HIGH);
+  // digitalWrite(ledpins[3], HIGH);
+
+
+  // 01 03 11 12
+  digitalWrite(ledpins[0], HIGH); // 01 и 11
+
+  digitalWrite(groundpins[1], HIGH); //03
+  digitalWrite(ledpins[2], HIGH);
+
+  delay(5);
+  digitalWrite(groundpins[1], LOW); // 03 гасим
+  digitalWrite(ledpins[2], LOW);
+
+  digitalWrite(groundpins[0], HIGH); // 12
+  digitalWrite(ledpins[1], HIGH);
+  delay(5);
+}
+
+
 
 
 void test_all(){
