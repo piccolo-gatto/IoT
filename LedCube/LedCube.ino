@@ -164,8 +164,8 @@
 
 
 
-int ledpins[] = {4,5,6,7};
-int groundpins[] = {2,3};
+int ledpins[] = {4,5,6,7}; // 1 2 3 4 колонки
+int groundpins[] = {2,3}; // 0 и 1 слои
 void setup ()
 {
   for(int i = 0; i < 4; i++)
@@ -179,41 +179,117 @@ void setup ()
 
 void loop()
 {
-  off_all();
+  change_all(0);
 
-  // for (int i=0; i<=1; i++){ // layer
+  // 01 / 02 / 03 / 04 / 11 / 12 / 13 / 14
+  // for (int i=0; i<=1; i++){ // layer   
   //   for (int j=0; j<=3; j++){ // col
   //     light_one(i, j);
   //     delay(500);
-  //     off_all();
+  //     change_all(0);
   //   }
   // }
 
+  // 01 11 / 02 12 / 03 13 / 04 14
   // for (int i=0; i<=3; i++){ //column
   //     light_two_in_column(i);
   //     delay(500);
-  //     off_all();
+  //     change_all(0);
   // }
 
-  for (int i=0; i<=3; i++){ //column for zero
-    for (int j=0; j<=3; j++){ //column for first
-      if (i != j){
-        light_two_in_layer(i, j);
-        delay(100);
+  // 01 12 / 01 13 / 01 14 / 02 11 / 02 13 / 02 14 / 03 11 / 03 12 / 03 14 / 04 11 / 04 12 / 04 13
+  // for (int i=0; i<=3; i++){ //column for zero
+  //   for (int j=0; j<=3; j++){ //column for first
+  //     if (i != j){
+  //       light_two_in_diff_layer(i, j);
+  //       delay(100);
+  //     }
+  //   }
+  // }
+
+  // 01 02 / 01 03 / 01 04 / 02 03 / 02 04 / 03 04 / 11 12 / 11 13 / 11 14 / 12 13 / 12 14 / 13 14
+  // for (int i=0; i<=1; i++){ // layer
+  //   for (int j=0; j<3; j++){ // column
+  //     for (int k=j+1; k<=3;k++){
+  //       light_two_in_layer(i, j, k);
+  //       delay(2000);
+  //       change_all(0);
+  //     }
+      
+  //   }
+  // }
+
+  //01 02 03 / 01 02 04 / 01 03 04 / 02 03 04 / 11 12 13 / 11 12 14 / 11 13 14 / 12 13 14
+  // for (int i=1; i>=0; i--){ // layer   
+  //   for (int j=0; j<=3; j++){ // col
+  //     light_three_in_layer_without(i, j);
+  //     delay(500);
+  //     change_all(0);
+  //   }
+  // }
+
+
+  // всякие разные тройки (где 2 в одном столбце и один в стороне)
+  // for (int i=0; i<=3; i++){
+  //   for(int j=0;j<=1;j++){
+  //     for(int k=0;k<=3;k++){
+  //       if(i!=k){
+  //         for(int q=0; q<=50; q++){
+  //           light_two_in_column(i);
+  //           delay(5);
+  //           change_all(0);
+  //           light_one(j, k);
+  //           delay(5);
+  //           change_all(0);
+  //         }
+  //         change_all(0);
+  //       }
+  //     }
+  //   }
+  // }
+
+
+  // доделать!
+  // всякие разные тройки (где все ваще разное)
+  for (int i=0; i<=1; i++){
+    for(int j=0;j<=3;j++){
+      for(int k=0;k<=3;k++){
+        if(j!=k){
+          for(int q=0; q<=100; q++){
+            light_two_in_layer(i, j, k);
+            delay(5);
+            change_all(0);
+            light_one(i, k);
+            delay(5);
+            change_all(0);
+          }
+          change_all(0);
+        }
       }
     }
   }
 
+
+  // все сразу
+  // on_all();
+  // delay(200);
 }
 
+void change_all(int state){
+  digitalWrite(groundpins[0], state);
+  digitalWrite(groundpins[1], state);
+  digitalWrite(ledpins[0], state);
+  digitalWrite(ledpins[1], state);
+  digitalWrite(ledpins[2], state);
+  digitalWrite(ledpins[3], state);
+}
 
-void off_all(){
-  digitalWrite(groundpins[0], LOW);
-  digitalWrite(groundpins[1], LOW);
-  digitalWrite(ledpins[0], LOW);
-  digitalWrite(ledpins[1], LOW);
-  digitalWrite(ledpins[2], LOW);
-  digitalWrite(ledpins[3], LOW);
+void on_all(){
+  change_all(0);
+  digitalWrite(ledpins[0], HIGH);
+  digitalWrite(ledpins[1], HIGH);
+  digitalWrite(ledpins[2], HIGH);
+  digitalWrite(ledpins[3], HIGH);
 }
 
 
@@ -252,31 +328,39 @@ void off_all(){
 
 void light_one(int layer, int col){
   digitalWrite(groundpins[layer], HIGH);
-
   digitalWrite(ledpins[col], HIGH);
-  
-  //digitalWrite(ledpins[col], LOW);
-  //delay(200);
-  
-  //digitalWrite(groundpins[layer], LOW);
-  //delay(200);
 }
 
 void light_two_in_column(int col){
   digitalWrite(ledpins[col], HIGH);
-  delay(300);
 }
 
-void light_two_in_layer(int fcol, int scol){
+void light_two_in_diff_layers(int fcol, int scol){
  for (int i=0; i<=100; i++){
   light_one(0, fcol);
     delay(5);
-    off_all();
+    change_all(0);
 
     light_one(1, scol);
     delay(5);
-    off_all();
+    change_all(0);
  }
+}
+
+void light_two_in_layer(int layer, int col1, int col2){
+  light_one(layer, col1);
+  light_one(layer, col2);
+  
+}
+
+void light_three_in_layer_without(int layer, int col){
+  change_all(1);
+  digitalWrite(groundpins[layer], LOW);
+  digitalWrite(ledpins[col], LOW);
+}
+
+void light_three_in_diff_layers(){
+
 }
 
 
