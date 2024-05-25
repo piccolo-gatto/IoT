@@ -1,105 +1,51 @@
-# получить че нить с esp
-# import time
-# import paho.mqtt.client as mqtt_client
-# import random
-#
-# broker="broker.emqx.io"
-#
-# def on_message(client, userdata, message):
-#     time.sleep(1)
-#     data = str(message.payload.decode("utf-8"))
-#     print("received message =", data)
-#
-# client = mqtt_client.Client('isu10012300')
-# # FOR new version change ABOVE line to
-# #client = mqtt_client.Client(
-# #    mqtt_client.CallbackAPIVersion.VERSION1,
-# #    'isu10012300'
-# #)
-# client.on_message=on_message
-#
-# print("Connecting to broker",broker)
-# client.connect(broker)
-# client.loop_start()
-# print("Subcribing")
-# client.subscribe("lab/ESP8266_1B9B/strip/state")
-# time.sleep(1800)
-# client.disconnect()
-# client.loop_stop()
-
-
-
-
-# после есп чтобы посмотреть что есп получает данные
-# import time
-# import paho.mqtt.client as mqtt_client
-# import random
-#
-# broker = "broker.emqx.io"
-#
-# #client = mqtt_client.Client('isu10012300')
-# #FOR new version change ABOVE line to
-# client = mqtt_client.Client(
-#    mqtt_client.CallbackAPIVersion.VERSION1,
-#    'isu10012300'
-# )
-#
-# print("Connecting to broker", broker)
-# print(client.connect(broker))
-# client.loop_start()
-# print("Publishing")
-#
-# for i in range(10):
-#     state = "255000000000255000255000000000255000000000255"
-#     state = state[i:] + state[:i]
-#     print(f"state is {state}")
-#     client.publish("lab/ESP8266_1B9B/strip/set_leds", state)
-#     time.sleep(2)
-#
-# client.disconnect()
-# client.loop_stop()
-
-
-
-
-# россия
+import requests
 import time
-import paho.mqtt.client as mqtt_client
-import random
+import asyncio
+#172.20.10.2
+SERVER_URL = "http://127.0.0.1:8055"
 
-broker="broker.emqx.io"
+broker = "broker.emqx.io"
+TOPIC = "lab/ESP8266_1B9B/strip/set_leds"
 
-client = mqtt_client.Client('isu10012300')
-# FOR new version change ABOVE line to
-#client = mqtt_client.Client(
-#    mqtt_client.CallbackAPIVersion.VERSION1,
-#    'isu10012300'
-#)
 
-print("Connecting to broker",broker)
-print(client.connect(broker))
-client.loop_start()
-print("Publishing")
+async def get_colors(user, device):
+    response = requests.post(f"{SERVER_URL}/all_leds", json={'user_id': int(user), 'device_id': int(device)})
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print('get colors', response)
+        return None
 
-state = "255255255"\
-"255000000"\
-"000000255"\
-"255255255"\
-"255000000"\
-"000000255"\
-"255255255"\
-"255000000"\
-"000000255"\
-"255255255"\
-"255000000"\
-"000000255"
 
-for i in range(10):
-    state = state[9:] + state[:9]
-    print(f"state is {state}")
-    client.publish("lab/ESP8266_1B9B/strip/set_leds", state)
+def send_color(device, color):
+    client = mqtt_client.Client('isu10012300')
+    topic = f"{TOPIC}"
+    print("Connecting to broker", broker)
+    print(client.connect(broker))
+    client.publish(topic, color)
     time.sleep(2)
+    print(f"Color {color} sent to device {device}")
 
-client.disconnect()
-client.loop_stop()
+
+async def pub():
+    while True:
+        user = str(input('print user id: '))
+        device = str(input('print device id: '))
+        data = await get_colors(user, device)
+        if data:
+            for row in data:
+                color = row["colors_id"]
+                code = requests.post(f"{SERVER_URL}/get_led", json={'color_id': color}).json()['color']
+                send_color(device, code)
+
+        await asyncio.sleep(5)
+
+if __name__ == '__main__':
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(pub())
+    except KeyboardInterrupt:
+        pass
+
 

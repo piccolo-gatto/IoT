@@ -28,3 +28,19 @@ class LedsSaved(NewLeds):
 
     class Config:
         orm_mode = True
+
+
+class GetLeds(BaseModel):
+    user_id: int
+    device_id: int
+
+
+class GetColors(BaseModel):
+    color_id: int
+
+
+class Color(BaseModel):
+    color: str
+
+    class Config:
+        orm_mode = True
