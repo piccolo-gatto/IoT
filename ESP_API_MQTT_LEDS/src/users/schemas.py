@@ -12,3 +12,4 @@ class UserSaved(NewUser):
 
     class Config:
         orm_mode = True
+
