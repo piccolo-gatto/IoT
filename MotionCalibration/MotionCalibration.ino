@@ -36,26 +36,25 @@ void move(bool rforward, bool lforward, int rvelocity, int lvelocity){
   analogWrite(SPEED_LEFT, lvelocity);
 }
 
-void move_forward(int velocity){
-  move(true, true, velocity, velocity);
+void move_forward(int velocity1, int velocity2){
+  move(true, true, velocity1, velocity2);
 }
 
-void move_back(int velocity){
-  move(false, false, velocity, velocity);
+void move_back(int velocity1, int velocity2){
+  move(false, false, velocity1, velocity2);
 }
 
-void rotate_left(int velocity){
-  move(false, true, velocity, velocity);
+void rotate_left(int velocity1, int velocity2){
+  move(false, true, velocity1, velocity2);
 }
 
-void rotate_right(int velocity){
-  move(true, false, velocity, velocity);
+void rotate_right(int velocity1, int velocity2){
+  move(true, false, velocity1, velocity2);
 }
 
 void turn_left(int velocity){
   move(true, true, velocity, 0); 
 }
-
 void turn_right(int velocity){
   move(true, true, 0, velocity);
 }
@@ -73,36 +72,117 @@ void setup(){
 int state = NOTHING;
 int previous_state = NOTHING;
 char cmd;
+char previous_cmd;
 
-void loop() {
-  if (state == NOTHING) {
-    // пусто
-  } else if (state == MOVE) {
-    // проиграть_команду cmd
+char cmdArr[4] = {FORWARD, BACKWARD, RIGHT, LEFT};
 
 
-  } else if (state == DIR) {
-    // откалибровать направления
-  } else if (state == SP) {
-    // откалибровать скорости колес
+using CommandsArray = void (*)(int, int);
+CommandsArray commands[4] = {move_forward, move_back, rotate_right, rotate_left};
+char cmdtmpchar[4] = {' ', ' ', ' ', ' '};
+int lsp = 200; // left wheel speed
+int rsp = 200; // right wheel speed
+int delta_sp = 15; 
 
-  } else if (state == ROT) {
-    // откалибровать повороты
+bool is_changed = false; 
+bool is_plused = false; 
+bool is_minused = false; 
+
+void runcmd(char cmd){
+  for (int i = 0; i < 4; ++i) {
+    if (cmd == cmdtmpchar[i]) {
+      commands[i](lsp, rsp);
+      return;
+    }
   }
+  stop();
+}
 
-
-
-
-
-  if(mySerial.available()){
-    cmd = mySerial.read();
-    choose();
+void calibrate_dir(char cmd){
+  if (cmd == TRIANGLE) {
+    if (!is_changed) {
+      changedir(cmdArr, 4);
+      is_changed = true;
+    }
+  } else if (cmd == CIRCLE) {
+    for (int i = 0; i < 4; ++i) {
+      if (previous_cmd == cmdArr[i]) {
+        cmdtmpchar[i] = previous_cmd;
+        
+        return;
+      }
+    }
+  } else {
+    is_changed = false;
+    for (int i = 0; i < 4; ++i) {
+      if (cmd == cmdArr[i]) {
+        commands[i](lsp, rsp);
+        previous_cmd = cmd;
+        return;
+      }
+    }
+    stop();
   }
 }
 
+void changedir(char arr[], int size) {
+  char firstElement = arr[0];
+  for (int i = 0; i < size - 1; ++i) {
+    arr[i] = arr[i + 1];
+  }
+  arr[size - 1] = firstElement;
+}
+
+void calibrate_sp(char cmd){
+  if (cmd == TRIANGLE) {
+    if (!is_plused) {
+      if (previous_cmd == RIGHT) {
+        plus_sp(rsp);
+      } else if (previous_cmd == LEFT) {
+        plus_sp(lsp);
+      }
+      is_plused = true;
+    }
+  } else if (cmd == CROSS) { 
+    if (!is_minused) {
+      if (previous_cmd == RIGHT) {
+        minus_sp(rsp);
+      } else if (previous_cmd == LEFT) {
+        minus_sp(lsp);
+      }
+      is_minused = true;
+    }
+  } else { // калибровка скорости
+    is_plused = false;
+    is_minused = false;
+    for (int i = 0; i < 4; ++i) {
+      if (cmd == cmdtmpchar[i]) {
+        if (cmd != LEFT && cmd != RIGHT) { 
+          commands[i](lsp, rsp);
+        }
+        previous_cmd = cmd;
+        return;
+      }
+    }
+    stop();
+  }
+}
+
+void plus_sp(int sp){
+  if (sp + delta_sp <= 255)
+    sp += delta_sp;
+}
+
+void minus_sp(int sp){
+  if (sp - delta_sp >= 5)
+    sp -= delta_sp;
+}
 
 
-
+void calibrate_rot(char cmd){
+  // ...
+  stop();
+}
 
 void choose(){  // переключение режимов калбровки
   if (cmd == START) {
@@ -124,5 +204,24 @@ void choose(){  // переключение режимов калбровки
     } else if (state == MOVE) {
       state = previous_state;
     }
+  }
+}
+
+void loop() {
+  if (state == NOTHING) {
+    // пусто
+  } else if (state == MOVE) {
+    // проиграть_команду cmd
+    runcmd(cmd);} 
+    else if (state == DIR) {
+    calibrate_dir(cmd);} 
+    else if (state == SP) {
+    calibrate_sp(cmd);} 
+    else if (state == ROT) {
+    calibrate_rot(cmd);}
+
+  if(mySerial.available()){
+    cmd = mySerial.read();
+    choose();
   }
 }
