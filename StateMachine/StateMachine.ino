@@ -1,36 +1,42 @@
-// #include <iarduino_HC_SR04.h>
+#include <iarduino_HC_SR04.h>
 
 #define DIR_RIGHT 4
 #define SPEED_RIGHT 5
 #define DIR_LEFT 7
 #define SPEED_LEFT 6
 
-#define left_sensor_trig 10
-#define left_sensor_echo 11
-
+#define left_sensor_trig 11
+#define left_sensor_echo 10
 #define forward_sensor_trig 9
-#define forward_sensor_echo 3
+#define forward_sensor_echo 8
 
 // #define FD 20
 // #define CD 15
 // #define JD 15
 
-const int SAFE_DISTANCE_FORWARD = 20; 
-const int SAFE_DISTANCE_LEFT = 15;    
-const int DEFAULT_VELOCITY = 128;     
-const int TURN_DURATION = 500;        
+// const int SAFE_DISTANCE_FORWARD = 25; 
+// const int SAFE_DISTANCE_LEFT = 15; 
+
+const int CD = 10;
+const int FD = 25;
+const int JD = 15;
+   
+const int DEFAULT_VELOCITY = 255; 
+const int TURN_VELOCITY = 150;   
+const int TURN_DURATION = 550;    
+
 const float Kp = 2;                   // Пропорциональный коэффициент PID
 const float Kd = 10;                  // Дифференциальный коэффициент PID
 const float ALPHA = 0.2;              // Коэффициент экспоненциального сглаживания
-const int WATCHDOG_TIMER_THRESHOLD = 10000; // сторожевой таймер
+const int WATCHDOG_TIMER_THRESHOLD = 20000; // сторожевой таймер
 unsigned long watchdogTimerStart = 0; 
 
 unsigned long previousMillis = 0;
 const long period = 2000; // Период для проверки сторожевого таймера
 
 
-// iarduino_HC_SR04 left_sensor(10, 11);
-// iarduino_HC_SR04 forward_sensor(9, 3);
+iarduino_HC_SR04 left_sensor(left_sensor_trig, left_sensor_echo);
+iarduino_HC_SR04 forward_sensor(forward_sensor_trig, forward_sensor_echo);
 
 
 void setupMotorShield(){
@@ -81,43 +87,36 @@ void stop(){
   move(true, true, 0, 0);
 }
 
-void turn_90_degr(int direction){ // направо
-  unsigned long currentMillis = millis();
-  unsigned long previousMillis = 0;
-  const long period = 2000; // подобрать время
-  if (currentMillis - previousMillis < period and direction==0) {
-    previousMillis = currentMillis;
-    turn_right(128); // подобрать скорость
-  }
-  else if (currentMillis - previousMillis < period and direction==1) {
-    previousMillis = currentMillis;
-    turn_left(128); // подобрать скорость
-  }
-}
+// void turn_90_degr(int direction){ 
+//   unsigned long currentMillis = millis();
+//   unsigned long previousMillis = 0;
+//   const long period = 2000; // подобрать время
+//   if (currentMillis - previousMillis < period and direction==0) {
+//     previousMillis = currentMillis;
+//     turn_right(DEFAULT_VELOCITY); // подобрать скорость
+//   }
+//   else if (currentMillis - previousMillis < period and direction==1) {
+//     previousMillis = currentMillis;
+//     turn_left(DEFAULT_VELOCITY); // подобрать скорость
+//   }
+// }
 
-void turn_270_degr(){ // направо
-  turn_right(128); // подобрать время и скорость
-}
+// int get_dist(int trig, int echo){
+//   long duration;
+//   int distance;
+//   digitalWrite(trig, LOW);
+//   delayMicroseconds(3); 
 
-
-int get_dist(int trig, int echo){
-  long duration;
-  int distance;
-  digitalWrite(trig, LOW);
-  delayMicroseconds(3); 
-
-  digitalWrite(trig, HIGH); 
-  delayMicroseconds(10); 
-  digitalWrite(trig,LOW);
-  duration = pulseIn(echo, HIGH);
-  distance = duration * 0.0344 / 2; 
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
-  return distance;
-}
-
-
+//   digitalWrite(trig, HIGH); 
+//   delayMicroseconds(10); 
+//   digitalWrite(trig,LOW);
+//   duration = pulseIn(echo, HIGH);
+//   distance = duration * 0.0344 / 2; 
+//   Serial.print("Distance: ");
+//   Serial.print(distance);
+//   Serial.println(" cm");
+//   return distance;
+// }
 
 enum RobotState {
   FORWARD,
@@ -125,20 +124,25 @@ enum RobotState {
   TURN_LEFT,
   ROTATE_RIGHT,
   ROTATE_LEFT,
-  FOLLOW_WALL,
+  CHOOSE,
   STOP,
   WATCHDOG_TIMER_TRIGGERED
 };
 
 RobotState currState = FORWARD;
+
 float previousError = 0;
 float integral = 0;
-int ldist; // Объявляем переменную ldist здесь
-int fdist; // Объявляем переменную fdist здесь
+
+int ldist; 
+int fdist; 
+
+int ldist_prev=0;
 
 float error;
 float pid_output;
 
+// попытки сделать pid 
 float pid_controller(float currentError) {
   float derivative = currentError - previousError;
   integral = ALPHA * integral + currentError;
@@ -159,124 +163,86 @@ void loop(){
   unsigned long previousMillis = 0;
   const long period = 2000; 
 
+  // Сторожевой таймер
+    if (currentMillis - watchdogTimerStart >= WATCHDOG_TIMER_THRESHOLD) {
+        currState = STOP;
+    }
+
   // ручной вариант
   // int ldist = get_dist(left_sensor_trig, left_sensor_echo);
   // int fdist = get_dist(forward_sensor_trig, forward_sensor_trig);
 
   // библиотечный вариант
-  // left_sensor.averaging = 15; // усреднение значений
-  // forward_sensor.averaging = 15;
-  // int ld2 = left_sensor.distance();
-  // int fd2 = forward_sensor.distance();
+  left_sensor.averaging = 15; // усреднение значений
+  forward_sensor.averaging = 15;
+  int ldist = left_sensor.distance();
+  int fdist = forward_sensor.distance();
+
+  // Serial.print('f');
+  // Serial.println(fdist);
+  // Serial.print('l ');
+  // Serial.println(ldist);
   
-  switch(currState) {
+  
+  switch (currState) {
     case FORWARD:
-
-      ldist = get_dist(left_sensor_trig, left_sensor_echo);
-      fdist = get_dist(forward_sensor_trig, forward_sensor_trig);
-
-      if (millis() - watchdogTimerStart >= WATCHDOG_TIMER_THRESHOLD) {
-        currState = WATCHDOG_TIMER_TRIGGERED;
-        break;
-      }
-
-      error = SAFE_DISTANCE_LEFT - leftDistance;
-      pid_output = pid_controller(error);
-
-      // Если нет препятствия спереди, двигаемся вперед
-      if(fdist > SAFE_DISTANCE_FORWARD) {
-        move_forward(DEFAULT_VELOCITY);
+      move_forward(DEFAULT_VELOCITY);
+      currState = CHOOSE;
+      break;
+      
+    case TURN_RIGHT:
+      turn_right(TURN_VELOCITY);
+      if (ldist > CD && ldist < FD && fdist > CD){
         currState = FORWARD;
       }
-      // Если есть препятствие спереди и слева, поворачиваем направо
-      else if (ldist <= SAFE_DISTANCE_LEFT) {
-        currState = TURN_RIGHT;
-      }
-      // Если есть препятствие спереди, но слева свободно, поворачиваем налево
-      else {
-        // float left_motor_speed = DEFAULT_VELOCITY + pid_output;
-        // float right_motor_speed = DEFAULT_VELOCITY - pid_output;
-        // move(true, true, left_motor_speed, right_motor_speed);
-        // currentState = MOVE_FORWARD;
-        currState = TURN_LEFT;
-      }
-      break;
-
-    case TURN_RIGHT:
-      // Поворачиваем направо
-      rotate_right(DEFAULT_VELOCITY);
-      delay(TURN_DURATION);
-      currState = FORWARD; 
       break;
 
     case TURN_LEFT:
-      // Поворачиваем направо
-      rotate_left(DEFAULT_VELOCITY);
-      delay(TURN_DURATION);
-      currState = FORWARD; 
+      turn_left(TURN_VELOCITY);
+      if (ldist > CD && ldist < FD && fdist > CD){
+        currState = FORWARD;
+      }
+      break;
+      
+    case ROTATE_RIGHT:
+      currentMillis = millis();
+      while (millis() - currentMillis < TURN_DURATION){
+        rotate_right(DEFAULT_VELOCITY);
+      } 
+      currState = FORWARD;
       break;
 
-   
+    case ROTATE_LEFT:
+      currentMillis = millis();
+      while(millis() - currentMillis < TURN_DURATION/2){
+        move_forward(DEFAULT_VELOCITY);
+      } 
+      currentMillis = millis();
+      while(millis() - currentMillis < TURN_DURATION){
+        rotate_left(DEFAULT_VELOCITY);
+      } 
+      currState = FORWARD;
+      break;
+
+    case CHOOSE:
+      if (ldist < CD) {
+        currState = TURN_RIGHT;
+      } else if (ldist > FD && fdist > FD) {
+        currState = TURN_LEFT;
+      } else if (fdist < CD && CD < ldist && ldist < FD){
+        currState = ROTATE_RIGHT;
+      } else if (fdist <= CD && ldist > ldist_prev && ldist - ldist_prev > JD){
+        currState = ROTATE_LEFT;
+      }
+      break;
+
     case STOP:
       stop();
       break;
 
-  case FOLLOW_WALL:
-      // Проверяем дистанцию слева
-      ldist = get_dist(left_sensor_trig, left_sensor_echo);
-      
-      // Если нет стены слева, поворачиваем налево
-      if(ldist > SAFE_DISTANCE_LEFT) {
-        currState = TURN_LEFT;
-      }
-      // Если стена слева, двигаемся вперед
-      else {
-        move_forward(DEFAULT_VELOCITY);
-        currState = FOLLOW_WALL;
-      }
-      break;
-
-  default:
-        // Действие по умолчанию (например, остановка)
-        move_forward(128);
-        break;
-
   }
+  ldist_prev = ldist;
 
-
-  // move_forward(255);
-  // delay(2000);
-  //     // if (current_time - prev_time >= 2000) {
-  //     //   prev_time = current_time;
-  //     // }
-  //     rotate_left(255);
-  //     delay(2000);
-  //     // if (current_time - prev_time >= 2000) {
-  //     //   prev_time = current_time;
-  //     // }
-  //     move_back(255);
-  //     delay(2000);
-  //     // if (current_time - prev_time >= 2000) {
-  //     //   prev_time = current_time;
-  //     // }
-  //     rotate_right(255);
-  //     delay(2000);
-  //     stop();
-  //     delay(2000);
-
-
-  // Serial.println(counter-millis());
-  // if (prev_time - millis() < 1250){ 
-  //   rotate_left(255);
-  // } else{
-  //   stop();
-  // }
-  // move_forward(255);
-  // delay(2000);
-  // rotate_left(255);
-  // delay(2000);
-  // move_back(255);
-  // delay(2000);
 }
 
 // код для проверок
